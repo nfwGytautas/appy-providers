@@ -11,7 +11,7 @@ import (
 const APISecret = "xxxx-xxxx-xxxx-xxxx-xxxx"
 const APIKey = "xxxx-xxxx-xxxx-xxxx-xxxx"
 
-type HttpProvider struct {
+type Provider struct {
 	Server *appy_http.Server
 
 	Root    *gin.RouterGroup
@@ -24,9 +24,9 @@ type HttpProvider struct {
 	appKey appy_http.ApiKeyMiddlewareProvider
 }
 
-func Init() (*HttpProvider, error) {
+func Init() (*Provider, error) {
 	var err error
-	provider := &HttpProvider{}
+	provider := &Provider{}
 
 	// Initialize HTTP server
 	config := appy_http.HttpConfig{
