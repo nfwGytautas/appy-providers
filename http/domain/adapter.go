@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	ports "{{.PackageRoot}}/domains/{{.DomainName}}/ports"
-	providers_http "{{.PackageRoot}}/providers/http"
+	ports "{{.Module}}/domains/{{.DomainName}}/ports"
+	providers_http "{{.Module}}/providers/http"
 )
 
 type {{.DomainName}}HttpAdapter struct {
