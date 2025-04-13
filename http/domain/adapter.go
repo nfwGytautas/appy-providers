@@ -12,7 +12,7 @@ type {{.DomainName}}HttpAdapter struct {
 	Usecase ports.Get{{TitleString .DomainName}}InputPort
 }
 
-func (a *{{.DomainName}}HttpAdapter) Setup(server *providers_http.HttpProvider) {
+func (a *{{.DomainName}}HttpAdapter) Setup(server *providers_http.Provider) {
 	server.Root.GET("/{{.DomainName}}/:id", func(ctx *gin.Context) {
 		id := ctx.Param("id")
 		tenant, err := a.Usecase.Execute(ports.Get{{TitleString .DomainName}}Command{ID: id})
