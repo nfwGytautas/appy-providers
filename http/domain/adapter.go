@@ -9,13 +9,13 @@ import (
 )
 
 type {{.DomainName}}HttpAdapter struct {
-	Usecase ports.Get{{.DomainName}}InputPort
+	Usecase ports.Get{{TitleString .DomainName}}InputPort
 }
 
 func (a *{{.DomainName}}HttpAdapter) Setup(server *providers_http.HttpProvider) {
 	server.Root.GET("/{{.DomainName}}/:id", func(ctx *gin.Context) {
 		id := ctx.Param("id")
-		tenant, err := a.Usecase.Execute(ports.Get{{.DomainName}}Command{ID: id})
+		tenant, err := a.Usecase.Execute(ports.Get{{TitleString .DomainName}}Command{ID: id})
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
