@@ -1,5 +1,5 @@
 name: postgres
-version: 0.0.0
+version: 0.1.0
 description: A provider for a postgres database
 hooks:
   - name: onProviderConfigured
