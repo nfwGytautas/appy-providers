@@ -11,6 +11,5 @@ watchers:
   - fs:
       - ${Workspace}/providers/postgres/queries
       - ${Workspace}/providers/postgres/migrations
-    action:
-      ${ProviderRoot}/tools/query_engine.py
-      ${Workspace}/providers/postgres/driver/ ${ProjectName}
+    actions:
+      - ${ProviderRoot}/tools/query_engine.py ${Workspace}/providers/postgres/driver/ ${ProjectName}

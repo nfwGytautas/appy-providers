@@ -3,4 +3,5 @@ version: 0.1.0
 description: A provider for HTTP server
 hooks:
   - name: onDomainCreated
-    action: appy copyTemplate
+    actions:
+      - appy copyTemplate
