@@ -1,0 +1,10 @@
+name: postgres
+version: 0.0.0
+description: A provider for a postgres database
+watchers:
+  - fs: ${workspace}/providers/postgres/database
+    action:
+      ${providerRoot}/tools/query_engine.py
+      ${workspace}/providers/postgres/database/queries/
+      ${workspace}/providers/postgres/database/migrations/
+      ${workspace}/providers/postgres/database/driver/ ${projectName}
