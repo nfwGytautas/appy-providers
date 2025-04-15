@@ -1,10 +1,16 @@
 name: postgres
 version: 0.0.0
 description: A provider for a postgres database
+hooks:
+  - name: onProviderConfigured
+    actions:
+      - mkdir ${Workspace}/providers/postgres/queries
+      - mkdir ${Workspace}/providers/postgres/migrations
+      - mkdir ${Workspace}/providers/postgres/driver
 watchers:
-  - fs: ${Workspace}/providers/postgres/database
+  - fs:
+      - ${Workspace}/providers/postgres/queries
+      - ${Workspace}/providers/postgres/migrations
     action:
       ${ProviderRoot}/tools/query_engine.py
-      ${Workspace}/providers/postgres/database/queries/
-      ${Workspace}/providers/postgres/database/migrations/
-      ${Workspace}/providers/postgres/database/driver/ ${ProjectName}
+      ${Workspace}/providers/postgres/driver/ ${ProjectName}

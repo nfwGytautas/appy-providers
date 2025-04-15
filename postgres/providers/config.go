@@ -1,6 +1,8 @@
 package providers_postgres
 
-import "os"
+import (
+	appy_driver "github.com/nfwGytautas/appy-go/driver"
+)
 
 type Provider struct {
 }
@@ -12,7 +14,7 @@ func Init() (*Provider, error) {
 	const connectionString = "postgres://postgres:postgres@localhost:5432/postgres"
 
 	// Initialize the driver
-	err := {{.ProjectName}}_driver.Initialize(connectionString)
+	err = {{.ProjectName}}_driver.Initialize(connectionString)
 	if err != nil {
 		return nil, err
 	}
