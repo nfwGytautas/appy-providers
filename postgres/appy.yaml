@@ -15,7 +15,7 @@ watchers:
       - ${Workspace}/providers/postgres/queries
       - ${Workspace}/providers/postgres/migrations
     actions:
-      - ${ProviderRoot}/tools/query_engine.py
+      - python3 ${ProviderRoot}/tools/query_engine.py
         ${Workspace}/providers/postgres/driver/
         ${ProjectName}
         ${BuildDir}/postgres/build_cache.json
