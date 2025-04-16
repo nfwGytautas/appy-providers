@@ -13,7 +13,7 @@ import drivers
 from query import Query
 from migration import Migration
 from macro import Macro
-
+from cache import QueryCache
 from driver import DatabaseDriver
 
 
@@ -39,6 +39,9 @@ class QueryEngine:
         arguments.add_argument(
             "package", type=str, help="The name of the package", default="package"
         )
+        arguments.add_argument(
+            "cache_file", type=str, help="The cache file", default="build_cache.json"
+        )
 
         values = arguments.parse_args()
 
@@ -46,17 +49,21 @@ class QueryEngine:
         self.__migration_dir = values.migration_dir
         self.__out_dir = values.out_dir
         self.__package = values.package
+        self.__cache = QueryCache(values.cache_file)
+        self.__cache.load_last()
 
     def __get_queries(self) -> [str]:
         """
         Get all the query files in the query directory
         """
+        self.__cache.record(self.__query_dir)
         return glob.glob(f"{self.__query_dir}/**/*.sql", recursive=True)
 
     def __get_migrations(self) -> [str]:
         """
         Get all the migration files in the migration directory
         """
+        self.__cache.record(self.__migration_dir)
         return glob.glob(f"{self.__migration_dir}/*.sql")
 
     def __parse_query_file(self, file: str) -> ([Query], [Macro]):
@@ -75,9 +82,16 @@ class QueryEngine:
             queries = [Query(str(pathlib.Path(file).relative_to(self.__query_dir)), x[0], x[1])
                        for x in query_query.findall(query_file)]
 
+        # Only get macros if the file is outdated
+        if file not in self.__cache.get_outdated():
+            return ([], macros)
+
         return (queries, macros)
 
     def __parse_migration(self, origin: str) -> Migration:
+        if origin not in self.__cache.get_outdated():
+            return None
+
         with open(origin, "r", encoding="utf-8") as f:
             return Migration(origin, f.read())
 
@@ -126,28 +140,30 @@ class QueryEngine:
             queries += content[0]
             macros += content[1]
 
-        migrations = [self.__parse_migration(
-            file) for file in self.__get_migrations()]
+        migrations = [ self.__parse_migration(
+            file) for file in self.__get_migrations() if file in self.__cache.get_outdated()]
 
         print(
-            f"Found: '{len(queries)}' queries from '{len(self.__get_queries())}' files")
+            f"Found: '{len(queries)}' outdated queries from '{len(self.__get_queries())}' files")
 
         print(
-            f"Found: '{len(macros)}' macros from '{len(self.__get_queries())}' files")
+            f"Found: '{len(macros)}' outdated macros from '{len(self.__get_queries())}' files")
 
         print(
-            f"Found: '{len(migrations)}' migrations from '{len(self.__get_migrations())}' files")
+            f"Found: '{len(migrations)}' outdated migrations from '{len(self.__get_migrations())}' files")
 
         # Generate the 'database.go'
         driver = self.__get_driver()
 
         print(f"Driver: '{driver.get_name()}'")
 
+        deleted = self.__cache.remove_deleted()
+
         # Apply macros
         self.__apply_macros(queries, macros)
 
         # Write base files
-        driver.write_base(self.__package, self.__out_dir)
+        driver.write_base(self.__package, self.__out_dir, deleted)
 
         # Generate queries
         driver.write_queries(self.__out_dir, queries)

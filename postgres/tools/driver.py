@@ -15,8 +15,6 @@ class DatabaseDriver:
     Interface for datbase driver
     """
 
-    GO_VERSION = "1.21.3"
-
     INITIALIZE_CODE = """
         import (
             appy_driver "github.com/nfwGytautas/appy-go/driver"
@@ -50,13 +48,13 @@ class DatabaseDriver:
         """
         raise NotImplementedError("Not implemented")
 
-    def write_base(self, package_name: str, out_dir: str) -> None:
+    def write_base(self, package_name: str, out_dir: str, old_files: list[str]) -> None:
         """
         Write base files to the directory
         """
         self.__package_name = package_name
 
-        self.__create_root(out_dir)
+        self.__create_root(out_dir, old_files)
 
 
         with open(out_dir + "constants.go", "w+", encoding="utf-8") as f:
@@ -124,17 +122,18 @@ class DatabaseDriver:
     def _format_migration(self, query: str) -> str:
         raise NotImplementedError("Not implemented")
 
-    def __create_root(self, out_dir: str) -> None:
+    def __create_root(self, out_dir: str, old_files: list[str]) -> None:
         p = pathlib.Path(out_dir)
 
         if p.exists():
-            print("Removing old directory")
             if not p.is_dir():
                 raise RuntimeError("Out exists but is not a directory")
 
-            shutil.rmtree(out_dir)
+        for file in old_files:
+            if pathlib.Path(file).exists():
+                pathlib.Path(file).unlink()
 
-        p.mkdir(parents=True, exist_ok=False)
+        p.mkdir(parents=True, exist_ok=True)
 
     def __write_implementation_template(self, file: str) -> None:
         with open(file, "w+", encoding="utf-8") as f:
