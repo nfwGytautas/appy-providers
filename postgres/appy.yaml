@@ -9,7 +9,7 @@ hooks:
       - mkdir ${Workspace}/providers/postgres/driver
       - cp ${ProviderRoot}/templates/query.sql ${Workspace}/providers/postgres/queries/query.sql
       - cp ${ProviderRoot}/templates/migration.sql ${Workspace}/providers/postgres/migrations/0_0_0.sql
-      - cp ${ProviderRoot}/templates/core_migration.sql ${Workspace}/providers/postgres/migrations/core.sql
+      - cp ${ProviderRoot}/templates/core.sql ${Workspace}/providers/postgres/migrations/core.sql
 watchers:
   - fs:
       - ${Workspace}/providers/postgres/queries
