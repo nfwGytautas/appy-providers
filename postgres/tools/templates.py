@@ -97,14 +97,11 @@ import (
     appy_driver "github.com/nfwGytautas/appy-go/driver"
 )
 
-const version = "$version"
-const rootMigration = $migration
-
 func Initialize(connectionString string) error {
     return appy_driver.Initialize(appy_driver.InitializeArgs{
         ConnectionString: connectionString,
-        Version:          version,
-        Migration:        rootMigration,
+        Version:          "$version",
+        Migration:        $migration,
     })
 }
 """
