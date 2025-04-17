@@ -1,189 +1,118 @@
 """
-Entry file for the query engine
+Tool for auto generating golang code from sql files
 """
 
-import glob
-import subprocess
 import argparse
-import re
+import glob
 import pathlib
+import string
+import subprocess
 
-import drivers
+from macros import Macros
+from queries import Queries
+from migrations import Migrations
 
-from query import Query
-from migration import Migration
-from macro import Macro
-from cache import QueryCache
-from driver import DatabaseDriver
-
+from templates import CONFIG
 
 class QueryEngine:
     """
-    The query function generator for
+    Tool for auto generating golang code from sql files
     """
-
-    QUERY_MARKER = "@query"
-    QUERY_END_MARKER = "@endquery"
-    MACRO_MARKER = "@macro"
-    MACRO_END_MARKER = "@endmacro"
 
     def __init__(self) -> None:
         arguments = argparse.ArgumentParser(description="Query Engine")
 
         arguments.add_argument(
-            "query_dir", type=str, help="The directory of the queries")
-        arguments.add_argument(
-            "migration_dir", type=str, help="The directory of the migrations")
-        arguments.add_argument("out_dir", type=str,
-                               help="The output directory")
+            "root", type=str, help="Root directory where macros, migrations, queries are located")
         arguments.add_argument(
             "package", type=str, help="The name of the package", default="package"
-        )
-        arguments.add_argument(
-            "cache_file", type=str, help="The cache file", default="build_cache.json"
         )
 
         values = arguments.parse_args()
 
-        self.__query_dir = values.query_dir
-        self.__migration_dir = values.migration_dir
-        self.__out_dir = values.out_dir
+        self.__root = values.root
         self.__package = values.package
-        self.__cache = QueryCache(values.cache_file)
-        self.__cache.load_last()
 
-    def __get_queries(self) -> [str]:
+    def run(self) -> None:
         """
-        Get all the query files in the query directory
-        """
-        self.__cache.record(self.__query_dir)
-        return glob.glob(f"{self.__query_dir}/**/*.sql", recursive=True)
-
-    def __get_migrations(self) -> [str]:
-        """
-        Get all the migration files in the migration directory
-        """
-        self.__cache.record(self.__migration_dir)
-        return glob.glob(f"{self.__migration_dir}/*.sql")
-
-    def __parse_query_file(self, file: str) -> ([Query], [Macro]):
-        macro_pattern = r"@macro\s(\S+)\n(.*?)@endmacro"
-        query_pattern = r"@query\s(\S+)\n(.*?)@endquery"
-
-        macro_query = re.compile(macro_pattern, re.DOTALL)
-        query_query = re.compile(query_pattern, re.DOTALL)
-
-        with open(file, 'r', encoding="utf-8") as f:
-            query_file = f.read()
-
-            macros = [Macro(x[0], x[1])
-                      for x in macro_query.findall(query_file)]
-
-            queries = [Query(str(pathlib.Path(file).relative_to(self.__query_dir)), x[0], x[1])
-                       for x in query_query.findall(query_file)]
-
-        # Only get macros if the file is outdated
-        if file not in self.__cache.get_outdated():
-            return ([], macros)
-
-        return (queries, macros)
-
-    def __parse_migration(self, origin: str) -> Migration:
-        if origin not in self.__cache.get_outdated():
-            return None
-
-        with open(origin, "r", encoding="utf-8") as f:
-            return Migration(origin, f.read())
-
-    def __get_driver(self) -> DatabaseDriver:
-        # return drivers.MySqlDriver()
-        return drivers.PostgresDriver()
-
-    def __apply_macros(self, queries: [Query], macros: [Macro]) -> None:
-        """
-        Apply macros to the queries
-        """
-        for query in queries:
-            query.set_content(
-                self.__apply_macros_to_query(query.content, macros))
-
-    def __apply_macros_to_query(self, content: str, macros: [Macro]) -> str:
-        has_replaced = True
-
-        while has_replaced:
-            has_replaced = False
-            for macro in macros:
-                macro_key = f"%%{macro.name}%%"
-
-                if macro_key not in content:
-                    continue
-
-                content = content.replace(
-                    macro_key, macro.body)
-                has_replaced = True
-
-        return content
-
-    def generate(self):
-        """
-        Generate the golang queries
+        Run the query engine
         """
 
-        # Load
-        queries = []
-        macros = []
+        # Read macros
+        macros = Macros()
 
-        contents = [self.__parse_query_file(
-            file) for file in self.__get_queries()]
+        print("Reading macros...")
+        for file in glob.glob(f"{self.__root}/macros/**/*.sql", recursive=True):
+            print("    + ", file)
+            macros.read_from_file(file)
+        print(f"Loaded '{len(macros.macros)}' macros")
 
-        for content in contents:
-            queries += content[0]
-            macros += content[1]
+        # Read queries
+        queries = Queries(macros)
 
-        migrations = [ self.__parse_migration(
-            file) for file in self.__get_migrations() if file in self.__cache.get_outdated()]
+        print("Reading queries...")
+        for file in glob.glob(f"{self.__root}/queries/**/*.sql", recursive=True):
+            print("    + ", file)
+            queries.read_from_file(file)
+        print(f"Loaded '{len(queries.queries)}' queries")
 
-        print(
-            f"Found: '{len(queries)}' outdated queries from '{len(self.__get_queries())}' files")
+        # Read migrations
+        migrations = Migrations()
 
-        print(
-            f"Found: '{len(macros)}' outdated macros from '{len(self.__get_queries())}' files")
+        print("Reading migrations...")
+        for file in glob.glob(f"{self.__root}/migrations/*.sql"):
+            print("    + ", file)
+            migrations.read_from_file(file)
+        print(f"Loaded '{len(migrations.migrations)}' migrations")
 
-        print(
-            f"Found: '{len(migrations)}' outdated migrations from '{len(self.__get_migrations())}' files")
+        # Get latest migration
+        latest_migration = migrations.get_latest()
+        if latest_migration is None:
+            raise Exception("No final migration found")
 
-        # Generate the 'database.go'
-        driver = self.__get_driver()
+        print(f"Latest migration: {latest_migration}")
 
-        print(f"Driver: '{driver.get_name()}'")
+        # Create files
+        print("Creating files...")
+        pathlib.Path(f"{self.__root}/driver").mkdir(parents=True, exist_ok=True)
 
-        deleted = self.__cache.remove_deleted()
+        queries_file = f"{self.__root}/driver/queries.go"
+        migrations_file = f"{self.__root}/driver/migrations.go"
+        base_file = f"{self.__root}/driver/base.go"
 
-        # Apply macros
-        self.__apply_macros(queries, macros)
+        with open(queries_file, "w+", encoding="utf-8") as f:
+            f.write(f"package {self.__package}_driver\n\n")
+            f.write("import (\n")
+            f.write("    appy_driver \"github.com/nfwGytautas/appy-go/driver\"\n")
+            f.write("    appy_logger \"github.com/nfwGytautas/appy-go/logger\"\n")
+            f.write(")\n\n")
+            f.write(queries.to_str())
 
-        # Write base files
-        driver.write_base(self.__package, self.__out_dir, deleted)
+        with open(migrations_file, "w+", encoding="utf-8") as f:
+            f.write(f"package {self.__package}_driver\n\n")
+            f.write("import (\n")
+            f.write("    \"errors\"\n")
+            f.write("    appy_driver \"github.com/nfwGytautas/appy-go/driver\"\n")
+            f.write("    appy_logger \"github.com/nfwGytautas/appy-go/logger\"\n")
+            f.write(")\n\n")
+            f.write(migrations.to_str())
 
-        # Generate queries
-        driver.write_queries(self.__out_dir, queries)
+        with open(base_file, "w+", encoding="utf-8") as f:
+            f.write(string.Template(CONFIG).substitute(
+                package=self.__package,
+                version=latest_migration,
+                migration=f"mUp{latest_migration}",
+            ))
 
-        # Generate migrations
-        driver.write_migrations(self.__out_dir, migrations)
+        print("Running go tools...")
+        subprocess.run(["goimports", "-w", queries_file], check=True)
+        subprocess.run(["gofmt", "-w", queries_file], check=True)
+        subprocess.run(["goimports", "-w", migrations_file], check=True)
+        subprocess.run(["gofmt", "-w", migrations_file], check=True)
+        subprocess.run(["goimports", "-w", base_file], check=True)
+        subprocess.run(["gofmt", "-w", base_file], check=True)
 
-        # Write constants
-        driver.write_constants(self.__out_dir)
-
-        # Tidy up all files
-        print("Code generated, running 'gofmt' and 'goimports'")
-        for file in glob.glob(f"{self.__out_dir}/*.go"):
-            print(f"  - {file}")
-            subprocess.run(["goimports", "-w", file], check=True)
-            subprocess.run(["gofmt", "-w", file], check=True)
-
-        print(f"Generating done, files stored in '{self.__out_dir}'")
-
+        print("Done!")
 
 if __name__ == "__main__":
-    engine = QueryEngine()
-    engine.generate()
+    QueryEngine().run()

@@ -4,11 +4,13 @@ description: A provider for a postgres database
 hooks:
   - name: onProviderConfigured
     actions:
+      - mkdir ${Workspace}/providers/postgres/macros
       - mkdir ${Workspace}/providers/postgres/queries
       - mkdir ${Workspace}/providers/postgres/migrations
       - mkdir ${Workspace}/providers/postgres/driver
       - cp ${ProviderRoot}/templates/query.sql ${Workspace}/providers/postgres/queries/query.sql
-      - cp ${ProviderRoot}/templates/migration.sql ${Workspace}/providers/postgres/migrations/0_0_0.sql
+      - cp ${ProviderRoot}/templates/macro.sql ${Workspace}/providers/postgres/macros/macro.sql
+      - cp ${ProviderRoot}/templates/migration.sql ${Workspace}/providers/postgres/migrations/example.sql
       - cp ${ProviderRoot}/templates/core.sql ${Workspace}/providers/postgres/migrations/core.sql
 watchers:
   - fs:
@@ -16,8 +18,5 @@ watchers:
       - ${Workspace}/providers/postgres/migrations
     actions:
       - python3 ${ProviderRoot}/tools/query_engine.py
-        ${Workspace}/providers/postgres/queries
-        ${Workspace}/providers/postgres/migrations
-        ${Workspace}/providers/postgres/driver/
+        ${Workspace}/providers/postgres
         ${ProjectName}
-        ${BuildDir}/postgres/build_cache.json
