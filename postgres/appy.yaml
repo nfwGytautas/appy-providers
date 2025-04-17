@@ -16,7 +16,8 @@ watchers:
   - fs:
       - ${Workspace}/providers/postgres/queries
       - ${Workspace}/providers/postgres/migrations
+      - ${Workspace}/providers/postgres/macros
     actions:
-      - python3 ${ProviderRoot}/tools/query_engine.py
+      - /usr/bin/python3 ${ProviderRoot}/tools/query_engine.py
         ${Workspace}/providers/postgres
         ${ProjectName}
