@@ -20,4 +20,4 @@ watchers:
     actions:
       - /usr/bin/python3 ${ProviderRoot}/tools/query_engine.py
         ${Workspace}/providers/postgres
-        ${HyphenToUnderscore ProjectName}
+        ${{HyphenToUnderscore .ProjectName}}
