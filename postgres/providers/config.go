@@ -14,7 +14,7 @@ func Init() (*Provider, error) {
 	const connectionString = "postgres://postgres:postgres@localhost:5432/postgres"
 
 	// Initialize the driver
-	err = {{.ProjectName}}_driver.Initialize(connectionString)
+	err = {{HyphenToUnderscore .ProjectName}}_driver.Initialize(connectionString)
 	if err != nil {
 		return nil, err
 	}
