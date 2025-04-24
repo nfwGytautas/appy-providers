@@ -3,7 +3,7 @@ Templates for the query engine
 """
 
 QUERY_ROW_FUNCTION = """
-func Q$name(tx *appy_driver.Tx $argvEx) (appy_driver.RowResult, error) {
+func Q$name(tx appy_driver.Tx $argvEx) (appy_driver.RowResult, error) {
 	const query = `$query`
 	appy_logger.Logger().Info("Executing '$name'")
 	row := tx.QueryRow(query $argv)
@@ -12,7 +12,7 @@ func Q$name(tx *appy_driver.Tx $argvEx) (appy_driver.RowResult, error) {
 """
 
 QUERY_ROWS_FUNCTION = """
-func Q$name(tx *appy_driver.Tx $argvEx) (appy_driver.RowsResult, error) {
+func Q$name(tx appy_driver.Tx $argvEx) (appy_driver.RowsResult, error) {
 	const query = `$query`
 	appy_logger.Logger().Info("Executing '$name'")
 	return tx.Query(query $argv)
@@ -20,7 +20,7 @@ func Q$name(tx *appy_driver.Tx $argvEx) (appy_driver.RowsResult, error) {
 """
 
 QUERY_EXEC_FUNCTION = """
-func Q$name(tx *appy_driver.Tx $argvEx) (appy_driver.ExecResult, error) {
+func Q$name(tx appy_driver.Tx $argvEx) (appy_driver.ExecResult, error) {
 	const query = `$query`
 	appy_logger.Logger().Info("Executing '$name'")
 	return tx.Exec(query $argv)
@@ -28,7 +28,7 @@ func Q$name(tx *appy_driver.Tx $argvEx) (appy_driver.ExecResult, error) {
 """
 
 MIGRATION = """
-func mUp$name(tx *appy_driver.Tx, currentVersion string) error {
+func mUp$name(tx appy_driver.Tx, currentVersion string) error {
     const query = `$queryUp`
     var err error
 
@@ -56,14 +56,14 @@ func mUp$name(tx *appy_driver.Tx, currentVersion string) error {
     return nil
 }
 
-func mDown$name(tx *appy_driver.Tx, currentVersion string) error {
+func mDown$name(tx appy_driver.Tx, currentVersion string) error {
     const query = `$queryDown`
     return errors.New("migrating down is not yet implemented")
 }
 """
 
 MIGRATION_ROOT = """
-func mUp$name(tx *appy_driver.Tx, currentVersion string) error {
+func mUp$name(tx appy_driver.Tx, currentVersion string) error {
     const query = `$queryUp`
     var err error
 
@@ -84,7 +84,7 @@ func mUp$name(tx *appy_driver.Tx, currentVersion string) error {
     return nil
 }
 
-func mDown$name(tx *appy_driver.Tx, currentVersion string) error {
+func mDown$name(tx appy_driver.Tx, currentVersion string) error {
     const query = `$queryDown`
     return errors.New("migrating down is not yet implemented")
 }

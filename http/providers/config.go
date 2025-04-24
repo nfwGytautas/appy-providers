@@ -53,5 +53,9 @@ func Init() (*Provider, error) {
 	provider.App.Use(provider.appKey.Provide())
 	provider.Private.Use(provider.jwt.Authentication())
 
+	provider.Public.GET("/health", func(ctx *gin.Context) {
+		ctx.Status(http.StatusNoContent)
+	})
+
 	return provider, nil
 }
