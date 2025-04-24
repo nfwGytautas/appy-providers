@@ -21,13 +21,3 @@ func Init() (*Provider, error) {
 
 	return provider, nil
 }
-
-// Proxy function to the driver
-func StartTransaction() (appy_driver.Tx, error) {
-	return appy_driver.StartTransaction()
-}
-
-// Proxy function to the driver
-func RunTransaction(fn appy_driver.TransactionFn) error {
-	return appy_driver.RunTransaction(fn)
-}

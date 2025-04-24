@@ -3,19 +3,40 @@ Templates for the query engine
 """
 
 QUERY_ROW_FUNCTION = """
-func Q$name(tx appy_driver.Tx $argvEx) (appy_driver.RowResult, error) {
+func Q$name[T any](tx appy_driver.Tx, scanner appy_driver.ScanFn[T] $argvEx) (*T, error) {
 	const query = `$query`
 	appy_logger.Logger().Info("Executing '$name'")
+
 	row := tx.QueryRow(query $argv)
-	return row, row.Err()
+    if row.Err() != nil {
+        return nil, row.Err()
+    }
+
+    result, err := appy_driver.ParseRow(row, scanner)
+    if err != nil {
+        return nil, err
+    }
+
+	return result, nil
 }
 """
 
 QUERY_ROWS_FUNCTION = """
-func Q$name(tx appy_driver.Tx $argvEx) (appy_driver.RowsResult, error) {
+func Q$name[T any](tx appy_driver.Tx, scanner appy_driver.ScanFn[T] $argvEx) ([]T, error) {
 	const query = `$query`
 	appy_logger.Logger().Info("Executing '$name'")
-	return tx.Query(query $argv)
+
+    rows, err := tx.Query(query $argv)
+    if err != nil {
+        return nil, err
+    }
+
+    result, err := appy_driver.ParseRows(rows, scanner)
+    if err != nil {
+        return nil, err
+    }
+
+	return result, nil
 }
 """
 
@@ -94,7 +115,7 @@ CONFIG = """
 package ${package}_driver
 
 import (
-    appy_driver "github.com/nfwGytautas/appy-go/driver"
+    appy_driver "github.com/nfwGytautas/appy-providers/postgres/impl"
 )
 
 func Initialize(connectionString string) error {

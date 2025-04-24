@@ -72,8 +72,8 @@ func RunTransaction(fn TransactionFn) error {
 	return err
 }
 
-func DirectConnection() (Tx, error) {
-	return &txDirect{}, nil
+func DirectConnection() Tx {
+	return &txDirect{}
 }
 
 func (tx *txScoped) Exec(query string, args ...any) (ExecResult, error) {
