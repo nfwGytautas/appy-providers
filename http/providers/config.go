@@ -12,7 +12,6 @@ type Provider struct {
 
 	Root    *gin.RouterGroup
 	Api     *gin.RouterGroup
-	App     *gin.RouterGroup
 	Public  *gin.RouterGroup
 	Private *gin.RouterGroup
 }
@@ -34,7 +33,6 @@ func Init() (*Provider, error) {
 
 	// Initialize root groups
 	provider.Root = provider.Server.Root()
-	provider.App = provider.Root.Group("/app")
 	provider.Api = provider.Root.Group("/api")
 	provider.Public = provider.Api.Group("/")
 	provider.Private = provider.Api.Group("/")
