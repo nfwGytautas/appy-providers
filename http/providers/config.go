@@ -7,10 +7,6 @@ import (
 	appy_http "github.com/nfwGytautas/appy-go/http"
 )
 
-// TODO: Create actual key and API keys, potential to move to env variables
-const APISecret = "xxxx-xxxx-xxxx-xxxx-xxxx"
-const APIKey = "xxxx-xxxx-xxxx-xxxx-xxxx"
-
 type Provider struct {
 	Server *appy_http.Server
 
@@ -19,9 +15,6 @@ type Provider struct {
 	App     *gin.RouterGroup
 	Public  *gin.RouterGroup
 	Private *gin.RouterGroup
-
-	jwt    appy_http.JwtAuth
-	appKey appy_http.ApiKeyMiddlewareProvider
 }
 
 func Init() (*Provider, error) {
@@ -39,9 +32,6 @@ func Init() (*Provider, error) {
 		return nil, err
 	}
 
-	provider.jwt = appy_http.NewJwtAuth(APISecret)
-	provider.appKey = appy_http.NewApiKeyMiddlewareProvider(APIKey, http.StatusForbidden)
-
 	// Initialize root groups
 	provider.Root = provider.Server.Root()
 	provider.App = provider.Root.Group("/app")
@@ -50,9 +40,9 @@ func Init() (*Provider, error) {
 	provider.Private = provider.Api.Group("/")
 
 	// Setup middleware
-	provider.App.Use(provider.appKey.Provide())
-	provider.Private.Use(provider.jwt.Authentication())
+	// ...
 
+	// It is suggested to leave this endpoint for automated tools
 	provider.Public.GET("/health", func(ctx *gin.Context) {
 		ctx.Status(http.StatusNoContent)
 	})
