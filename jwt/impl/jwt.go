@@ -37,48 +37,42 @@ func NewJwtConfig(secret string, accessTokenLifetime, refreshTokenLifetime time.
 	}
 }
 
+func (j JwtConfig) GenerateToken(lifetime time.Duration, sub any, claims Claims) (string, error) {
+	token := jwt.New(jwt.SigningMethodHS512)
+
+	// Set claims
+	tokenClaims := token.Claims.(jwt.MapClaims)
+	tokenClaims["sub"] = sub
+	tokenClaims["exp"] = time.Now().Add(lifetime).Unix()
+
+	for key, value := range claims {
+		tokenClaims[key] = value
+	}
+
+	// Sign tokens with secret
+	tokenString, err := token.SignedString([]byte(j.secret))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
 func (j JwtConfig) GeneratePair(sub any, claims Claims) (*TokenPair, error) {
 	result := &TokenPair{}
 
-	{
-		accessToken := jwt.New(jwt.SigningMethodHS512)
-
-		accessTokenClaims := accessToken.Claims.(jwt.MapClaims)
-		accessTokenClaims["sub"] = sub
-		accessTokenClaims["exp"] = time.Now().Add(j.accessTokenLifetime).Unix()
-
-		for key, value := range claims {
-			accessTokenClaims[key] = value
-		}
-
-		// Sign tokens with secret
-		accessTokenString, err := accessToken.SignedString([]byte(j.secret))
-		if err != nil {
-			return nil, err
-		}
-
-		result.AccessToken = accessTokenString
+	accessToken, err := j.GenerateToken(j.accessTokenLifetime, sub, claims)
+	if err != nil {
+		return nil, err
 	}
 
-	{
-		refreshToken := jwt.New(jwt.SigningMethodHS512)
-
-		refreshTokenClaims := refreshToken.Claims.(jwt.MapClaims)
-		refreshTokenClaims["sub"] = sub
-		refreshTokenClaims["exp"] = time.Now().Add(j.refreshTokenLifetime).Unix()
-
-		for key, value := range claims {
-			refreshTokenClaims[key] = value
-		}
-
-		// Sign tokens with secret
-		refreshTokenString, err := refreshToken.SignedString([]byte(j.secret))
-		if err != nil {
-			return nil, err
-		}
-
-		result.RefreshToken = refreshTokenString
+	refreshToken, err := j.GenerateToken(j.refreshTokenLifetime, sub, claims)
+	if err != nil {
+		return nil, err
 	}
+
+	result.AccessToken = accessToken
+	result.RefreshToken = refreshToken
 
 	return result, nil
 }
