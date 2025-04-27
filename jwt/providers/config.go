@@ -9,6 +9,8 @@ import (
 // TODO: Create actual key and API keys, potential to move to env variables
 const secret = "xxxx-xxxx-xxxx-xxxx-xxxx"
 
+type Claims = appy_jwt.Claims
+
 type Provider struct {
 	appy_jwt.JwtConfig
 }
