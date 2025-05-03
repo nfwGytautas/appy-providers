@@ -47,3 +47,12 @@ func Init() (*Provider, error) {
 
 	return provider, nil
 }
+
+func (p *Provider) Start() error {
+	// Start the HTTP server
+	go func() {
+		p.Server.Run()
+	}()
+
+	return nil
+}
