@@ -22,3 +22,8 @@ func Init() (*Provider, error) {
 
 	return provider, nil
 }
+
+func (p *Provider) Start() error {
+	// jwt driver does not require any specific start logic
+	return nil
+}

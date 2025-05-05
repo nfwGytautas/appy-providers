@@ -10,6 +10,9 @@ type InitializeArgs struct {
 	Version          string
 	Migration        MigrationFn
 }
+type Reservation struct {
+	ReservationID int
+}
 
 var gDatabaseConnection *pgxpool.Pool
 

@@ -1,7 +1,3 @@
 name: jwt
 version: 0.1.0
 description: A provider for JWT authentication
-hooks:
-  - name: onDomainCreated
-    actions:
-      - appy copyTemplate
