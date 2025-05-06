@@ -14,6 +14,7 @@ function plugin:on_adapter_created(domain, adapter)
         template = self.script_root .. "templates/adapter.go",
         target = path,
         args = {
+            Module = appy.config.module,
             DomainName = domain
         }
     })

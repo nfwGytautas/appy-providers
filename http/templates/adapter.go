@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"{{.Config.Module}}/providers"
+	"{{.Module}}/providers"
 )
 
 type Domain interface {
