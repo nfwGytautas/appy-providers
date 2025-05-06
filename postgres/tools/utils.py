@@ -12,5 +12,5 @@ def cleanup_query(query: str) -> str:
         str: single line, whitespace removed query
     """
     # Remove comments
-    query = "\n".join([line for line in query.split("\n") if not line.startswith("--")])
+    query = "\n".join([line for line in query.split("\n") if not "--" in line])
     return query.replace("\n", " ").replace("\t", " ").replace("  ", " ").strip()

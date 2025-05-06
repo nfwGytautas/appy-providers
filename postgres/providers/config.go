@@ -1,7 +1,7 @@
 package providers_postgres
 
 import (
-	appy_driver "github.com/nfwGytautas/appy-go/driver"
+	appy_driver "github.com/nfwGytautas/appy-providers/postgres/impl"
 )
 
 type Provider struct {
@@ -22,12 +22,7 @@ func Init() (*Provider, error) {
 	return provider, nil
 }
 
-// Proxy function to the driver
-func StartTransaction() (*appy_driver.Tx, error) {
-	return appy_driver.StartTransaction()
-}
-
-// Proxy function to the driver
-func RunTransaction(fn appy_driver.TransactionFn) error {
-	return appy_driver.RunTransaction(fn)
+func (p *Provider) Start() error {
+	// postgres driver does not require any specific start logic
+	return nil
 }

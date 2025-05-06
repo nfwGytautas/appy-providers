@@ -83,7 +83,7 @@ class QueryEngine:
         with open(queries_file, "w+", encoding="utf-8") as f:
             f.write(f"package {self.__package}_driver\n\n")
             f.write("import (\n")
-            f.write("    appy_driver \"github.com/nfwGytautas/appy-go/driver\"\n")
+            f.write("    appy_driver \"github.com/nfwGytautas/appy-providers/postgres/impl\"\n")
             f.write("    appy_logger \"github.com/nfwGytautas/appy-go/logger\"\n")
             f.write(")\n\n")
             f.write(queries.to_str())
@@ -92,7 +92,7 @@ class QueryEngine:
             f.write(f"package {self.__package}_driver\n\n")
             f.write("import (\n")
             f.write("    \"errors\"\n")
-            f.write("    appy_driver \"github.com/nfwGytautas/appy-go/driver\"\n")
+            f.write("    appy_driver \"github.com/nfwGytautas/appy-providers/postgres/impl\"\n")
             f.write("    appy_logger \"github.com/nfwGytautas/appy-go/logger\"\n")
             f.write(")\n\n")
             f.write(migrations.to_str())
