@@ -23,7 +23,7 @@ func Init() (*Provider, error) {
 	// Initialize HTTP server
 	config := appy_http.HttpConfig{
 		ErrorMapper: &ErrorMapper{},
-		Address:     "127.0.0.1:8080",
+		Address:     "127.0.0.1:3000",
 	}
 
 	provider.Server, err = appy_http.InitializeHTTP(&config)
