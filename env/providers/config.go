@@ -25,3 +25,8 @@ func Init() (*Provider, error) {
 
 	return provider, nil
 }
+
+func (p *Provider) Start() error {
+	// No need to start anything for env provider
+	return nil
+}

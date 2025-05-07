@@ -19,7 +19,7 @@ end
 function plugin:on_load()
     local regenerate_code = function(file, op)
         local project_name = appy.config.project
-        project_name = project_name:gsub("%s+", "_")
+        project_name = project_name:gsub("-", "_")
 
         print("Regenerating code for file: " .. file .. " with operation: " .. op)
         appy.execute_shell("/usr/bin/python3", {
