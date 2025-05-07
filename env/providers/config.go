@@ -15,6 +15,11 @@ func Init() (*Provider, error) {
 	// Check if .env file exists
 	_, err := os.Stat(".env")
 	if err != nil {
+		if os.IsNotExist(err) {
+			// .env file does not exist, so nothing to do
+			return provider, nil
+		}
+
 		return nil, err
 	}
 
