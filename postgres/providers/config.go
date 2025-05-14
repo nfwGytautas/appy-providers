@@ -1,7 +1,7 @@
 package providers_postgres
 
 import (
-	appy_driver "github.com/nfwGytautas/appy-providers/postgres/impl"
+	{{HyphenToUnderscore .ProjectName}}_driver "{{.Module}}/providers/postgres/driver"
 )
 
 type Provider struct {

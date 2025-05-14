@@ -35,4 +35,33 @@ function plugin:on_load()
     appy.watch_directory(self.provider_root .. "migrations", regenerate_code)
 end
 
+function plugin:on_adapter_created(domain, adapter)
+    if adapter ~= "postgres" then
+        return
+    end
+
+    print("Adding 'postgres' adapter template to " .. domain)
+
+    local path = appy.get_adapter_root(domain, adapter) .. "adapter.go"
+    appy.apply_template({
+        template = self.script_root .. "templates/adapter.go",
+        target = path,
+        args = {
+            Module = appy.config.module,
+            DomainName = domain
+        }
+    })
+
+    local path = appy.get_adapter_root(domain, adapter) .. "get.go"
+    appy.apply_template({
+        template = self.script_root .. "templates/get.go",
+        target = path,
+        args = {
+            Module = appy.config.module,
+            DomainName = domain,
+            ProjectName = appy.config.project
+        }
+    })
+end
+
 return plugin
