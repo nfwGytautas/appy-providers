@@ -3,12 +3,15 @@ package providers_http
 import (
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	appy_http "github.com/nfwGytautas/appy-go/http"
 )
 
+// TODO: You could set this from an environment variable if needed
+const address = "127.0.0.1:3000"
+
 type Provider struct {
-	Server *appy_http.Server
+	Server *gin.Engine
 
 	Root    *gin.RouterGroup
 	Api     *gin.RouterGroup
@@ -17,22 +20,14 @@ type Provider struct {
 }
 
 func Init() (*Provider, error) {
-	var err error
 	provider := &Provider{}
 
 	// Initialize HTTP server
-	config := appy_http.HttpConfig{
-		ErrorMapper: &ErrorMapper{},
-		Address:     "127.0.0.1:3000",
-	}
-
-	provider.Server, err = appy_http.InitializeHTTP(&config)
-	if err != nil {
-		return nil, err
-	}
+	provider.Server = gin.Default()
+	provider.Server.Use(cors.Default())
 
 	// Initialize root groups
-	provider.Root = provider.Server.Root()
+	provider.Root = provider.Server.Group("/")
 	provider.Api = provider.Root.Group("/api")
 	provider.Public = provider.Api.Group("/")
 	provider.Private = provider.Api.Group("/")
@@ -51,7 +46,7 @@ func Init() (*Provider, error) {
 func (p *Provider) Start() error {
 	// Start the HTTP server
 	go func() {
-		p.Server.Run()
+		p.Server.Run(address)
 	}()
 
 	return nil
