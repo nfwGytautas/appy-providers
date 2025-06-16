@@ -7,11 +7,7 @@ import (
 	"{{.Module}}/providers"
 )
 
-type Domain interface {
-	// Describe the methods that you want to provide HTTP access to
-}
-
-func Connect(providers *providers.Providers, domain Domain) error {
+func Connect(providers *providers.Providers, domain {{.DomainName}}DomainInterface) error {
 	providers.Http.Api.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, "Welcome to the {{.DomainName}} domain!")
 	})
