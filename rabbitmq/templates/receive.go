@@ -25,6 +25,7 @@ func (a *Adapter) StartReceiving() error {
 	go func() {
 		for msg := range msgs {
 			// Process the message
+			log.Println("RQ: ", msg)
 		}
 	}()
 

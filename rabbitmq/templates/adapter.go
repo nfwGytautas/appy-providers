@@ -3,11 +3,12 @@ package {{.DomainName}}_adapter_rabbitmq
 import (
 	"github.com/rabbitmq/amqp091-go"
 	"{{.Module}}/providers"
+	providers_rabbitmq "{{.Module}}/providers/rabbitmq"
 )
 
 type Adapter struct {
-	rabbit *providers.Rabbitmq
-	exampleQueue *amqp091.Queue
+	rabbit *providers_rabbitmq.Provider
+	exampleQueue amqp091.Queue
 }
 
 func NewAdapter(providers *providers.Providers) (*Adapter, error) {
