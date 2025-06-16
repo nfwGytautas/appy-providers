@@ -1,8 +1,6 @@
 package {{.DomainName}}_adapter_rabbitmq
 
 import (
-	"net/http"
-
 	"github.com/rabbitmq/amqp091-go"
 	"{{.Module}}/providers"
 )

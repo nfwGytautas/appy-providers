@@ -27,7 +27,7 @@ function plugin:on_adapter_created(domain, adapter)
     })
 
     appy.apply_template({
-        template = self.script_root .. "templates/adapter.go",
+        template = self.script_root .. "templates/receive.go",
         target = appy.get_adapter_root(domain, adapter) .. "receive.go",
         args = {
             Module = appy.config.module,
