@@ -1,4 +1,4 @@
-version: v0.2.0
+version: 0.1.0
 type: Plugin
-name: RabbitMQ
-description: Your plugin description here
+name: rabbitmq
+description: A provider for RabbitMQ, allowing you to send and receive messages.

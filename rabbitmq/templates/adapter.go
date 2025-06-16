@@ -8,15 +8,14 @@ import (
 )
 
 type Adapter struct {
-	rabbit *providers.RabbitMQ
-
+	rabbit *providers.Rabbitmq
 	exampleQueue *amqp091.Queue
 }
 
 func NewAdapter(providers *providers.Providers) (*Adapter, error) {
 	var err error
 	adapter := Adapter{
-		rabbit: providers.RabbitMQ,
+		rabbit: providers.Rabbitmq,
 	}
 
 	// Declare a queue for example usage
