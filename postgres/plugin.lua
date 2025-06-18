@@ -2,6 +2,17 @@ local appy = require("appy")
 
 local plugin = {}
 
+function plugin:__generate_driver()
+    local project_name = appy.config.project
+    project_name = project_name:gsub("-", "_")
+
+    appy.execute_shell("/usr/bin/python3", {
+        self.script_root .. "tools/query_engine.py",
+        self.provider_root,
+        project_name
+    })
+end
+
 function plugin:on_configure()
     -- Create standard directories for the provider
     appy.mkdir(self.provider_root .. "macros")
@@ -14,19 +25,15 @@ function plugin:on_configure()
     appy.copy_file(self.script_root .. "templates/macro.sql", self.provider_root .. "macros/macro.sql")
     appy.copy_file(self.script_root .. "templates/migration.sql", self.provider_root .. "migrations/migration.sql")
     appy.copy_file(self.script_root .. "templates/core.sql", self.provider_root .. "migrations/core.sql")
+
+    -- Generate the driver code
+    plugin:__generate_driver()
 end
 
 function plugin:on_load()
     local regenerate_code = function(file, op)
-        local project_name = appy.config.project
-        project_name = project_name:gsub("-", "_")
-
         print("Regenerating code for file: " .. file .. " with operation: " .. op)
-        appy.execute_shell("/usr/bin/python3", {
-            self.script_root .. "tools/query_engine.py",
-            self.provider_root,
-            project_name
-        })
+        plugin:__generate_driver()
     end
 
     -- Attach watchers
