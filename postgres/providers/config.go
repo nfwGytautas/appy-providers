@@ -1,7 +1,7 @@
 package providers_postgres
 
 import (
-	{{HyphenToUnderscore .Config.ProjectName}}_driver "{{.Config.Module}}/providers/postgres/driver"
+	{{HyphenToUnderscore .Config.Project}}_driver "{{.Config.Module}}/providers/postgres/driver"
 )
 
 type Provider struct {
@@ -14,7 +14,7 @@ func Init() (*Provider, error) {
 	const connectionString = "postgres://postgres:postgres@localhost:5432/postgres"
 
 	// Initialize the driver
-	err = {{HyphenToUnderscore .Config.ProjectName}}_driver.Initialize(connectionString)
+	err = {{HyphenToUnderscore .Config.Project}}_driver.Initialize(connectionString)
 	if err != nil {
 		return nil, err
 	}

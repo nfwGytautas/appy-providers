@@ -11,7 +11,7 @@ type Adapter struct {
 	exampleQueue amqp091.Queue
 }
 
-func NewAdapter(providers *providers.Providers) (*Adapter, error) {
+func NewAdapter(providers *providers_rabbitmq.Provider) (*Adapter, error) {
 	var err error
 	adapter := Adapter{
 		rabbit: providers.Rabbitmq,
